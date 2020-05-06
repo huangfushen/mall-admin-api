@@ -30,19 +30,19 @@ class Role extends BaseController
 
 
 	/**
-	 * 获取所有角色(树结构)
+	 * 获取所有角色及权限(树结构)
 	 */
-	public function getRoleList()
+	public function getRoleRightList()
 	{
-//        //token校验
-//        $header = $this->message->getHeader('Authorization');
-//        if($header == null){
-//            return $this->my_response(PARAMS_FAIL,'参数错误，请重新登录');
-//        }
-//        $token = $header->getValue();
-//        if(!$this->check_token($token)){
-//            return $this->my_response(VERIFY_FAIL,'Token验证失败，请重新登录');
-//        }
+        //token校验
+        $header = $this->message->getHeader('Authorization');
+        if($header == null){
+            return $this->my_response(PARAMS_FAIL,'参数错误，请重新登录');
+        }
+        $token = $header->getValue();
+        if(!$this->check_token($token)){
+            return $this->my_response(VERIFY_FAIL,'Token验证失败，请重新登录');
+        }
 		$roles = $this->RoleService->get();
 		$auth = $this->RoleAuthService->get();
 		$menuOne = $this->MenuService->getLevelMenu(0);
@@ -77,7 +77,7 @@ class Role extends BaseController
 	 * 根据id获取角色信息
 	 * @return mixed
 	 */
-	public function getRoleById()
+	public function getRoleRightById()
 	{
 		$params = array(
 			'id' => ''
@@ -267,6 +267,25 @@ class Role extends BaseController
 		}
 		return $this->my_response(OPERATE_SUCCESS, '操作成功');
 
+	}
+
+	/**
+	 * 获取角色列表
+	 * @return mixed
+	 */
+	public function getRoleList(){
+		//token校验
+		$header = $this->message->getHeader('Authorization');
+		if($header == null){
+			return $this->my_response(PARAMS_FAIL,'参数错误，请重新登录');
+		}
+		$token = $header->getValue();
+		if(!$this->check_token($token)){
+			return $this->my_response(VERIFY_FAIL,'Token验证失败，请重新登录');
+		}
+		$roles = $this->RoleService->get();
+		$data = array('roleList' => $roles);
+		return $this->my_response(GET_SUCCESS, '获取成功', $data);
 	}
 	/**
 	 * 删除角色
