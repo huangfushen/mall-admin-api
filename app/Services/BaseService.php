@@ -30,8 +30,8 @@ class BaseService
 	 */
 	public function insert($options)
 	{
-		$query = $this->builder->insert($options);
-		return $query->resultID;
+		$this->builder->insert($options);
+		return $this->db->insertID();
 	}
 
 	/**

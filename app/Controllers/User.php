@@ -44,12 +44,16 @@ class User extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
 		}
 		$token = $header->getValue();
-		if (!$this->check_token($token)) {
+		$v_res = $this->check_token($token);
+		if ($v_res == 3) {
 			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		} elseif ($v_res == 2) {
+			return $this->my_response(AUTH_LOSE, '没有调用该接口的权限');
 		}
 		if (!isset($options['pagenum']) || !isset($options['pagesize'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
 		}
+		// 分页
 		$where = isset($options['query']) ? array('username' => $options['query']) : null;
 		$limit = ($options['pagenum'] - 1) * $options['pagesize'];
 		$offset = $options['pagesize'];
@@ -119,8 +123,11 @@ class User extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
 		}
 		$token = $header->getValue();
-		if (!$this->check_token($token)) {
+		$v_res = $this->check_token($token);
+		if ($v_res == 3) {
 			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		} elseif ($v_res == 2) {
+			return $this->my_response(AUTH_LOSE, '没有调用该接口的权限');
 		}
 		//校验参数
 		if (!isset($options['telphone'])) {
@@ -151,10 +158,10 @@ class User extends BaseController
 		$options['password'] = salt_pass($options['password'], $options['salt']);
 		unset($options['token']);
 		$result = $this->userService->insert($options);
-		if ($result != true) {
-			return $this->my_response(REQUEST_FAIL, '用户创建失败，请重试！');
-		} else {
+		if ($result != null) {
 			return $this->my_response(BUILD_SUCCESS, '用户创建成功');
+		} else {
+			return $this->my_response(REQUEST_FAIL, '用户创建失败，请重试！');
 		}
 
 	}
@@ -182,8 +189,11 @@ class User extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
 		}
 		$token = $header->getValue();
-		if (!$this->check_token($token)) {
+		$v_res = $this->check_token($token);
+		if ($v_res == 3) {
 			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		} elseif ($v_res == 2) {
+			return $this->my_response(AUTH_LOSE, '没有调用该接口的权限');
 		}
 		if (!isset($options['id'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
@@ -215,8 +225,11 @@ class User extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
 		}
 		$token = $header->getValue();
-		if (!$this->check_token($token)) {
+		$v_res = $this->check_token($token);
+		if ($v_res == 3) {
 			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		} elseif ($v_res == 2) {
+			return $this->my_response(AUTH_LOSE, '没有调用该接口的权限');
 		}
 		if (!isset($options['id'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
@@ -247,8 +260,11 @@ class User extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
 		}
 		$token = $header->getValue();
-		if (!$this->check_token($token)) {
+		$v_res = $this->check_token($token);
+		if ($v_res == 3) {
 			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		} elseif ($v_res == 2) {
+			return $this->my_response(AUTH_LOSE, '没有调用该接口的权限');
 		}
 		if (!isset($options['id'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
@@ -265,15 +281,17 @@ class User extends BaseController
 	{
 		$header = $this->message->getHeader('Authorization');
 		if ($header == null) {
-			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
+			return $this->my_response(PARAMS_FAIL, '参数错误');
 		}
 		$token = $header->getValue();
-		if (!$this->check_token($token)) {
-			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
-		}
+//        $v_res = $this->check_token($token);
+//		if ($v_res == 3) {
+//			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+//		}elseif($v_res == 2){
+//			return $this->my_response(AUTH_LOSE,'没有调用该接口的权限');
+//		}
 		$cache = \Config\Services::cache();
 		$cache->delete($token);
-		//var_dump($cache->get($options['token']));
 		return $this->my_response(OPERATE_SUCCESS, '退出登录成功');
 	}
 

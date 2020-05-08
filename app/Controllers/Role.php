@@ -40,16 +40,22 @@ class Role extends BaseController
             return $this->my_response(PARAMS_FAIL,'参数错误，请重新登录');
         }
         $token = $header->getValue();
-        if(!$this->check_token($token)){
-            return $this->my_response(VERIFY_FAIL,'Token验证失败，请重新登录');
-        }
+        $v_res = $this->check_token($token);
+		if ($v_res == 3) {
+			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		}elseif($v_res == 2){
+			return $this->my_response(AUTH_LOSE,'没有调用该接口的权限');
+		}
+        //获取角色
 		$roles = $this->RoleService->get();
+        //获取权限
 		$auth = $this->RoleAuthService->get();
+		//获取菜单列表
 		$menuOne = $this->MenuService->getLevelMenu(0);
 		$menuTwo = $this->MenuService->getLevelMenu(1);
 		$menuThird = $this->MenuService->getLevelMenu(2);
-		//$menuList = $this->MenuService->getLevelMenu(0);
 		foreach ($roles as $key => $role) {
+			//角色权限id
 			$pid = array();
 			foreach ($auth as $value) {
 				if ($role->id == $value->rid) {
@@ -66,6 +72,7 @@ class Role extends BaseController
 			unset($value1);
 			$roles[$key]->children = implode(',', $pid);
 			$this->setChild($roles[$key], $menuOne, $pid);
+
 
 		}
 
@@ -89,8 +96,11 @@ class Role extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
 		}
 		$token = $header->getValue();
-		if (!$this->check_token($token)) {
+        $v_res = $this->check_token($token);
+		if ($v_res == 3) {
 			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		}elseif($v_res == 2){
+			return $this->my_response(AUTH_LOSE,'没有调用该接口的权限');
 		}
 		if (!isset($options['id'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
@@ -121,8 +131,11 @@ class Role extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
 		}
 		$token = $header->getValue();
-		if (!$this->check_token($token)) {
+        $v_res = $this->check_token($token);
+		if ($v_res == 3) {
 			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		}elseif($v_res == 2){
+			return $this->my_response(AUTH_LOSE,'没有调用该接口的权限');
 		}
 		if (!isset($options['rid']) || !isset($options['pid'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
@@ -151,6 +164,10 @@ class Role extends BaseController
 		return $this->my_response(OPERATE_SUCCESS, '操作成功', $data);
 	}
 
+	/**
+	 * 获取权限列表（树形）
+	 * @return mixed
+	 */
 	public function getRightList(){
 		//token校验
 		$header = $this->message->getHeader('Authorization');
@@ -158,8 +175,11 @@ class Role extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
 		}
 		$token = $header->getValue();
-		if (!$this->check_token($token)) {
+        $v_res = $this->check_token($token);
+		if ($v_res == 3) {
 			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		}elseif($v_res == 2){
+			return $this->my_response(AUTH_LOSE,'没有调用该接口的权限');
 		}
 		$menuOne = $this->MenuService->getLevelMenu(0);
 		$menuTwo = $this->MenuService->getLevelMenu(1);
@@ -192,8 +212,11 @@ class Role extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
 		}
 		$token = $header->getValue();
-		if (!$this->check_token($token)) {
+        $v_res = $this->check_token($token);
+		if ($v_res == 3) {
 			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		}elseif($v_res == 2){
+			return $this->my_response(AUTH_LOSE,'没有调用该接口的权限');
 		}
 		if (!isset($options['id'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
@@ -236,8 +259,11 @@ class Role extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
 		}
 		$token = $header->getValue();
-		if (!$this->check_token($token)) {
+        $v_res = $this->check_token($token);
+		if ($v_res == 3) {
 			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		}elseif($v_res == 2){
+			return $this->my_response(AUTH_LOSE,'没有调用该接口的权限');
 		}
 		if (!isset($options['rid'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
@@ -303,8 +329,11 @@ class Role extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
 		}
 		$token = $header->getValue();
-		if (!$this->check_token($token)) {
+        $v_res = $this->check_token($token);
+		if ($v_res == 3) {
 			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		}elseif($v_res == 2){
+			return $this->my_response(AUTH_LOSE,'没有调用该接口的权限');
 		}
 		if (!isset($options['id'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
@@ -330,17 +359,20 @@ class Role extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
 		}
 		$token = $header->getValue();
-		if (!$this->check_token($token)) {
+        $v_res = $this->check_token($token);
+		if ($v_res == 3) {
 			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		}elseif($v_res == 2){
+			return $this->my_response(AUTH_LOSE,'没有调用该接口的权限');
 		}
 		if (!isset($options['roleName']) || !isset($options['roleDesc'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
 		}
 		$result = $this->RoleService->insert($options);
-		if ($result != true) {
-			return $this->my_response(REQUEST_FAIL, '角色创建失败，请重试！');
-		} else {
+		if ($result != null) {
 			return $this->my_response(BUILD_SUCCESS, '角色创建成功');
+		} else {
+			return $this->my_response(BUILD_FAIL, '角色创建失败，请重试！');
 		}
 	}
 
@@ -363,13 +395,13 @@ class Role extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
 		}
 		$token = $header->getValue();
-		if (!$this->check_token($token)) {
+        $v_res = $this->check_token($token);
+		if ($v_res == 3) {
 			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		}elseif($v_res == 2){
+			return $this->my_response(AUTH_LOSE,'没有调用该接口的权限');
 		}
 		if (!isset($options['id'])) {
-			return $this->my_response(PARAMS_FAIL, '参数错误');
-		}
-		if (!isset($options['roleName']) && !isset($options['roleDesc'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
 		}
 		$where = array('id' => $options['id']);
@@ -383,6 +415,45 @@ class Role extends BaseController
 	}
 
 	/**
+	 * 获取角色三级权限id
+	 * @return mixed
+	 */
+	public function getThirdRightId(){
+		$params = array(
+			'id' => ''
+		);
+		$options = $this->my_fill_options($params);
+		//校验token
+		$header = $this->message->getHeader('Authorization');
+		if ($header == null) {
+			return $this->my_response(PARAMS_FAIL, '参数错误，请重新登录');
+		}
+		$token = $header->getValue();
+		$v_res = $this->check_token($token);
+		if ($v_res == 3) {
+			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+		}elseif($v_res == 2){
+			return $this->my_response(AUTH_LOSE,'没有调用该接口的权限');
+		}
+		if (!isset($options['id'])) {
+			return $this->my_response(PARAMS_FAIL, '参数错误');
+		}
+		$auth = $this->RoleAuthService->get(array('rid' => $options['id']));
+		$menuThird = $this->MenuService->getLevelMenu(2);
+		$pid = array();
+		$third = array();
+		foreach ($auth as $value) {
+			array_push($pid, $value->pid);
+		}
+		foreach ($menuThird as $value1){
+			array_push($third, $value1->id);
+		}
+		$parr = array_intersect($pid, $third);
+		sort($parr);
+		$data = array('key' => $parr);
+		return $this->my_response(GET_SUCCESS, '获取成功', $data);
+	}
+	/**
 	 * 设置子权限
 	 * @param $father
 	 * @param $child
@@ -391,8 +462,10 @@ class Role extends BaseController
 	private function setChild($father, $child, $pid = null)
 	{
 		$childrens = array();
+		//children，子菜单的id
 		$cid = $father->children;
 		$child_arr = explode(',', $cid);
+		//pid角色的权限id
 		if($pid != null){
 			$parr = array_intersect($child_arr, $pid);
 		}else{

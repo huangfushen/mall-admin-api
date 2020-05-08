@@ -40,6 +40,20 @@ class MenuService extends BaseService
         $result =$query->getResult();
         return $result;
     }
+	/**
+	 * 获取用户列表（分页）
+	 * @return array|mixed
+	 */
+	function getMenus($where = null, $limit = null, $offset = null)
+	{
+		if ($where != null) {
+			$this->builder->like($where);
+		}
+		$this->builder->orderBy('level','ESC');
+		$query = $this->builder->getWhere(null, $offset, $limit);
+		$result = $query->getResult();
+		return $result;
+	}
 
 
 }

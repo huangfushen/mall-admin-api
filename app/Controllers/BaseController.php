@@ -15,6 +15,8 @@ namespace App\Controllers;
  * @package CodeIgniter
  */
 
+use App\Services\RoleAuthService;
+use App\Services\MenuService;
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\Controller;
 use App\Services\JwtAuth;
@@ -37,9 +39,10 @@ class BaseController extends Controller
 
 	public function __construct()
 	{
+		$this->RoleAuthService = new RoleAuthService();
+		$this->menuService = new MenuService();
 		$this->message = new Message();
 		$this->message->getHeaders();
-		//$this->helpers = array_merge($this->helpers, ['my_helper']);
 		helper(['my_helper']);
 	}
 
@@ -97,24 +100,52 @@ class BaseController extends Controller
 	}
 
 	/**
+	 *
 	 * 验证Token
 	 * @param $token
-	 * @return bool
+	 * @return int  1：通过 2：权限不足  3：token校验失败
 	 */
 	public function check_token($token)
 	{
 		$cache = \Config\Services::cache();
 		if ($cache->get($token) == false) {
-			return false;
+			return 3;
 		}
 		$jwtAuth = JwtAuth::getInstance();
 		$jwtAuth->setToken($token);
 		if ($jwtAuth->validate() && $jwtAuth->verify()) {
 			$cache->updateTime($token, 60 * 30);//续期半小时
-			return true;
+			return $this->check_auth($jwtAuth->getUid());
 		} else {
-			return false;
+			return 3;
 		}
+	}
+
+	/**
+	 * 权限校验
+	 * @param $id
+	 * @return int
+	 */
+	private function check_auth($id){
+		$path = $this->request->uri->getPath();
+		$auth = $this->RoleAuthService->get(array('rid' => $id));
+		if($auth ==null ){
+			return 2;
+		}
+		$pid = array();
+		foreach ($auth as $value) {
+			array_push($pid, $value->pid);
+		}
+		$auth = $this->menuService->getMenuById($pid);
+		foreach($auth as $key=>$value){
+			if($value->level == 2){
+				if(strcmp($value->path,$path)==0){
+					return 1;
+				}
+
+			}
+		}
+		return 2;
 	}
 
 }

@@ -16,7 +16,7 @@ class UserService extends BaseService
 	}
 
 	/**
-	 * 获取用户列表
+	 * 获取用户列表(分页)
 	 * @return array|mixed
 	 */
 	function getUsers($where = null, $limit = null, $offset = null)
