@@ -14,6 +14,7 @@ use Gregwar\Captcha\CaptchaBuilder;
  */
 class User extends BaseController
 {
+	protected $userService;
 
 	public function __construct()
 	{
@@ -109,7 +110,6 @@ class User extends BaseController
 	 */
 	public function addUser()
 	{
-		//todo  1.用户名重复
 		$params = array(
 			'username' => '',
 			'password' => '',

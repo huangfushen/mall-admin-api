@@ -34,12 +34,11 @@ class BaseController extends Controller
 	 */
 	protected $helpers = [];
 	protected $message;
-	public static $redisConn = '';
 	use  ResponseTrait;
 
 	public function __construct()
 	{
-		$this->RoleAuthService = new RoleAuthService();
+		$this->roleAuthService = new RoleAuthService();
 		$this->menuService = new MenuService();
 		$this->message = new Message();
 		$this->message->getHeaders();
@@ -128,7 +127,7 @@ class BaseController extends Controller
 	 */
 	private function check_auth($id){
 		$path = $this->request->uri->getPath();
-		$auth = $this->RoleAuthService->get(array('rid' => $id));
+		$auth = $this->roleAuthService->get(array('rid' => $id));
 		if($auth ==null ){
 			return 2;
 		}

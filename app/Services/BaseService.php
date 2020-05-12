@@ -68,4 +68,30 @@ class BaseService
 		return $query->getResult();
 	}
 
+	/**
+	 * @param $options[select,like,where,orderBy,order,offset,limit]
+	 * @return array|mixed
+	 */
+	function getComplete($options)
+	{
+		if(isset($options['select'])){
+			$this->builder->select($options['select']);
+		}
+		if (isset($options['like'])) {
+			$this->builder->like($options['like']);
+		}
+		if (isset($options['where'])) {
+			$this->builder->where($options['where']);
+		}
+		if(isset($options['orderBy']) && isset($options['order'])){
+			$this->builder->orderBy($options['orderBy'],$options['order']);
+		}
+		if(isset($options['offset']) && isset($options['limit'])){
+			$this->builder->limit( $options['offset'], $options['limit']);
+		}
+		$query = $this->builder->get();
+		$result = $query->getResult();
+		return $result;
+	}
+
 }

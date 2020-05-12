@@ -54,3 +54,13 @@ use CodeIgniter\HTTP\RequestInterface;
             }
         return $string;
     }
+
+/**
+ * 分页total 参数设置
+ * @param $arr
+ */
+    function unsetPage($arr){
+		unset($arr['limit']);
+		unset($arr['offset']);
+		return $arr;
+	}

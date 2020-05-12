@@ -8,7 +8,7 @@
 
 namespace App\Controllers;
 
-
+use App\Services\MenuService;
 
 class Menu extends BaseController
 {
@@ -18,7 +18,7 @@ class Menu extends BaseController
 	{
 
 		parent::__construct();
-
+		$this->menuService = new MenuService();
 	}
 
 	public function index()

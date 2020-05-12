@@ -15,12 +15,15 @@ use App\Services\RoleAuthService;
 
 class Role extends BaseController
 {
+	protected $menuService;
+	protected $roleService;
+	protected $roleAuthService;
 	public function __construct()
 	{
 		parent::__construct();
-		$this->RoleService = new RoleService();
-		$this->RoleAuthService = new RoleAuthService();
-		$this->MenuService = new MenuService();
+		$this->roleService = new RoleService();
+		$this->roleAuthService = new RoleAuthService();
+		$this->menuService = new MenuService();
 	}
 
 	public function index()
@@ -36,24 +39,24 @@ class Role extends BaseController
 	{
         //token校验
         $header = $this->message->getHeader('Authorization');
-        if($header == null){
-            return $this->my_response(PARAMS_FAIL,'参数错误，请重新登录');
-        }
-        $token = $header->getValue();
-        $v_res = $this->check_token($token);
-		if ($v_res == 3) {
-			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
-		}elseif($v_res == 2){
-			return $this->my_response(AUTH_LOSE,'没有调用该接口的权限');
-		}
+//        if($header == null){
+//            return $this->my_response(PARAMS_FAIL,'参数错误，请重新登录');
+//        }
+//        $token = $header->getValue();
+//        $v_res = $this->check_token($token);
+//		if ($v_res == 3) {
+//			return $this->my_response(VERIFY_FAIL, 'Token验证失败，请重新登录');
+//		}elseif($v_res == 2){
+//			return $this->my_response(AUTH_LOSE,'没有调用该接口的权限');
+//		}
         //获取角色
-		$roles = $this->RoleService->get();
+		$roles = $this->roleService->get();
         //获取权限
-		$auth = $this->RoleAuthService->get();
+		$auth = $this->roleAuthService->get();
 		//获取菜单列表
-		$menuOne = $this->MenuService->getLevelMenu(0);
-		$menuTwo = $this->MenuService->getLevelMenu(1);
-		$menuThird = $this->MenuService->getLevelMenu(2);
+		$menuOne = $this->menuService->getLevelMenu(0);
+		$menuTwo = $this->menuService->getLevelMenu(1);
+		$menuThird = $this->menuService->getLevelMenu(2);
 		foreach ($roles as $key => $role) {
 			//角色权限id
 			$pid = array();
@@ -105,7 +108,7 @@ class Role extends BaseController
 		if (!isset($options['id'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
 		}
-		$res = $this->RoleService->get($options);
+		$res = $this->roleService->get($options);
 		$data = array(
 			'id' => $res[0]->id,
 			'roleName' => $res[0]->roleName,
@@ -140,13 +143,13 @@ class Role extends BaseController
 		if (!isset($options['rid']) || !isset($options['pid'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
 		}
-		$this->RoleAuthService->delete($options);
+		$this->roleAuthService->delete($options);
 
 		//权限列表
-		$auth = $this->RoleAuthService->get(array('rid' => $options['rid']));
-		$menuOne = $this->MenuService->getLevelMenu(0);
-		$menuTwo = $this->MenuService->getLevelMenu(1);
-		$menuThird = $this->MenuService->getLevelMenu(2);
+		$auth = $this->roleAuthService->get(array('rid' => $options['rid']));
+		$menuOne = $this->menuService->getLevelMenu(0);
+		$menuTwo = $this->menuService->getLevelMenu(1);
+		$menuThird = $this->menuService->getLevelMenu(2);
 		$pid = array();
 		foreach ($auth as $value) {
 			array_push($pid, $value->pid);
@@ -181,9 +184,9 @@ class Role extends BaseController
 		}elseif($v_res == 2){
 			return $this->my_response(AUTH_LOSE,'没有调用该接口的权限');
 		}
-		$menuOne = $this->MenuService->getLevelMenu(0);
-		$menuTwo = $this->MenuService->getLevelMenu(1);
-		$menuThird = $this->MenuService->getLevelMenu(2);
+		$menuOne = $this->menuService->getLevelMenu(0);
+		$menuTwo = $this->menuService->getLevelMenu(1);
+		$menuThird = $this->menuService->getLevelMenu(2);
 		foreach ($menuTwo as $key2 => $value2) {
 			$this->setChild($menuTwo[$key2], $menuThird);
 		}
@@ -222,10 +225,10 @@ class Role extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误');
 		}
 		//权限列表
-		$auth = $this->RoleAuthService->get(array('id' => $options['id']));
-		$menuOne = $this->MenuService->getLevelMenu(0);
-		$menuTwo = $this->MenuService->getLevelMenu(1);
-		$menuThird = $this->MenuService->getLevelMenu(2);
+		$auth = $this->roleAuthService->get(array('id' => $options['id']));
+		$menuOne = $this->menuService->getLevelMenu(0);
+		$menuTwo = $this->menuService->getLevelMenu(1);
+		$menuThird = $this->menuService->getLevelMenu(2);
 		$pid = array();
 		foreach ($auth as $value) {
 			array_push($pid, $value->pid);
@@ -269,11 +272,11 @@ class Role extends BaseController
 			return $this->my_response(PARAMS_FAIL, '参数错误');
 		}
 		if(!isset($options['pid'])){
-			$this->RoleAuthService->delete(array('rid'=>$options['rid']));
+			$this->roleAuthService->delete(array('rid'=>$options['rid']));
 			return $this->my_response(OPERATE_SUCCESS, '操作成功');
 		}
 		$arr = explode(',', $options['pid']);
-		$auth = $this->RoleAuthService->get(array('rid'=>$options['rid']));
+		$auth = $this->roleAuthService->get(array('rid'=>$options['rid']));
 		$pid = array();
 		foreach ($auth as $value) {
 			array_push($pid, $value->pid);
@@ -283,12 +286,12 @@ class Role extends BaseController
 				return $this->my_response(PARAMS_FAIL, '参数错误');
 			}
 			if(!in_array($v,$pid)){
-				$this->RoleAuthService->insert(array('rid'=>$options['rid'],'pid'=>$v));
+				$this->roleAuthService->insert(array('rid'=>$options['rid'],'pid'=>$v));
 			}
 		}
 		foreach($pid as $v1){
 			if(!in_array($v1,$arr)){
-				$this->RoleAuthService->delete(array('rid'=>$options['rid'],'pid'=>$v1));
+				$this->roleAuthService->delete(array('rid'=>$options['rid'],'pid'=>$v1));
 			}
 		}
 		return $this->my_response(OPERATE_SUCCESS, '操作成功');
@@ -309,7 +312,7 @@ class Role extends BaseController
 		if(!$this->check_token($token)){
 			return $this->my_response(VERIFY_FAIL,'Token验证失败，请重新登录');
 		}
-		$roles = $this->RoleService->get();
+		$roles = $this->roleService->get();
 		$data = array('roleList' => $roles);
 		return $this->my_response(GET_SUCCESS, '获取成功', $data);
 	}
@@ -338,7 +341,7 @@ class Role extends BaseController
 		if (!isset($options['id'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
 		}
-		$this->RoleService->delete($options);
+		$this->roleService->delete($options);
 		return $this->my_response(OPERATE_SUCCESS, '操作成功');
 	}
 
@@ -368,7 +371,7 @@ class Role extends BaseController
 		if (!isset($options['roleName']) || !isset($options['roleDesc'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
 		}
-		$result = $this->RoleService->insert($options);
+		$result = $this->roleService->insert($options);
 		if ($result != null) {
 			return $this->my_response(BUILD_SUCCESS, '角色创建成功');
 		} else {
@@ -406,7 +409,7 @@ class Role extends BaseController
 		}
 		$where = array('id' => $options['id']);
 		unset($options['id']);
-		$res = $this->RoleService->update($options, $where);
+		$res = $this->roleService->update($options, $where);
 		if ($res) {
 			return $this->my_response(OPERATE_SUCCESS, '角色信息修改成功');
 		} else {
@@ -438,8 +441,8 @@ class Role extends BaseController
 		if (!isset($options['id'])) {
 			return $this->my_response(PARAMS_FAIL, '参数错误');
 		}
-		$auth = $this->RoleAuthService->get(array('rid' => $options['id']));
-		$menuThird = $this->MenuService->getLevelMenu(2);
+		$auth = $this->roleAuthService->get(array('rid' => $options['id']));
+		$menuThird = $this->menuService->getLevelMenu(2);
 		$pid = array();
 		$third = array();
 		foreach ($auth as $value) {
